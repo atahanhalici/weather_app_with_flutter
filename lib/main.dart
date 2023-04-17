@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/locator.dart';
 import 'package:weather_app/pages/HomePage.dart';
+import 'package:weather_app/pages/WeatherPage.dart';
 import 'package:weather_app/route_generator.dart';
 
+import 'view_models/location_viewmodel.dart';
+
 void main() {
-        WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   setupLocator();
-  runApp(
-    //MultiProvider(
-   // providers: [
-   //   ChangeNotifierProvider(create: (_) => ModelViewModel()),
-   // ],
-   // child:
-    const MyApp())/*)*/;
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => LocationViewModel()),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -21,12 +20,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       title: 'Weather App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      debugShowCheckedModeBanner: false,
       home: const MyHomePage(),
       onGenerateRoute: RouteGenerator.rotaOlustur,
     );
@@ -43,6 +42,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return const HomePage();
+    LocationViewModel _locationViewModel =
+        Provider.of<LocationViewModel>(context, listen: false);
+    _locationViewModel.sayi == 0
+        ? _locationViewModel.getCurrentLocation()
+        : null;
+    return const WeatherPage();
   }
 }

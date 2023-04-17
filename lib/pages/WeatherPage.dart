@@ -1,46 +1,157 @@
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import 'package:text_to_speech/text_to_speech.dart';
+import 'package:weather_app/view_models/location_viewmodel.dart';
 
-class WeatherPage extends StatelessWidget {
+class WeatherPage extends StatefulWidget {
   const WeatherPage({Key? key}) : super(key: key);
 
   @override
+  State<WeatherPage> createState() => _WeatherPageState();
+}
+
+class _WeatherPageState extends State<WeatherPage> {
+  SpeechToText speechToText = SpeechToText();
+  String text = "";
+  bool isListening = false;
+  TextEditingController _textEditingController = TextEditingController();
+  bool _visible = false;
+
+  @override
   Widget build(BuildContext context) {
+    LocationViewModel _locationViewModel =
+        Provider.of<LocationViewModel>(context, listen: true);
+
+    String text =
+        "${_locationViewModel.weather.name} Şehrinde Hava Bugün ${_locationViewModel.weather.main.temp.toString()} Derece ve ${_locationViewModel.weather.weather[0].description}";
+
     return Scaffold(
-      backgroundColor: const Color(0xFF676BD0),
-      body: Padding(
-        padding: const EdgeInsets.only(
-          left: 15.0,
-          right: 15.0,
-          top: 30.0,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: Icon(
+                Icons.search,
+              ),
+              onPressed: () {
+                setState(() {
+                  _visible = !_visible;
+                });
+              },
+            )
+          ],
         ),
-        child: Stack(
-          children: [
-            SafeArea(
-              top: true,
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Icon(
-                        Icons.menu,
-                        color: Colors.white,
-                      ),
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: AssetImage('assets/person.jpg'),
-                      ),
-                    ],
+        backgroundColor: const Color(0xFF676BD0),
+        body: _locationViewModel.state == ViewState.geldi
+            ? SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 15.0,
+                    right: 15.0,
+                    top: 30.0,
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                   Column(
+                  child: SafeArea(
+                    top: true,
+                    child: Column(
+                      children: [
+                        Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            Visibility(
+                              visible: _visible,
+                              child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: _textEditingController,
+                                        decoration: InputDecoration(
+                                          focusColor: const Color.fromARGB(
+                                              255, 34, 126, 167),
+                                          border: const UnderlineInputBorder(),
+                                          hintText: "Şehir Adı Giriniz",
+                                          hintStyle: const TextStyle(
+                                              color: Colors.grey),
+                                          suffixIcon: IconButton(
+                                              onPressed: () {
+                                                if (_textEditingController
+                                                    .text.isNotEmpty) {
+                                                  _locationViewModel.getWeather(
+                                                      _textEditingController
+                                                          .text);
+                                                  _textEditingController
+                                                      .clear();
+                                                  _visible = false;
+                                                }
+                                              },
+                                              icon: const Icon(
+                                                  Icons.arrow_forward_ios)),
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                        onPressed: () async {
+                                          if (!isListening) {
+                                            var available =
+                                                await speechToText.initialize();
+                                            if (available) {
+                                              setState(() {
+                                                isListening = true;
+                                                speechToText.listen(
+                                                  onResult: (result) {
+                                                    text =
+                                                        result.recognizedWords;
+
+                                                    speechToText.isNotListening ==
+                                                            true
+                                                        ? setState(() {
+                                                            isListening = false;
+                                                            _locationViewModel
+                                                                .getWeather(
+                                                                    text);
+                                                            _textEditingController
+                                                                .clear();
+                                                            _visible = false;
+                                                          })
+                                                        : null;
+                                                  },
+                                                );
+                                              });
+                                            }
+                                          }
+                                        },
+                                        icon: AvatarGlow(
+                                          endRadius: 75,
+                                          animate: isListening,
+                                          duration:
+                                              Duration(milliseconds: 2000),
+                                          glowColor: Colors.blueAccent,
+                                          repeat: true,
+                                          repeatPauseDuration:
+                                              Duration(milliseconds: 100),
+                                          showTwoGlows: true,
+                                          child: Icon(
+                                            Icons.mic,
+                                            color: isListening
+                                                ? Colors.blue
+                                                : Colors.black,
+                                          ),
+                                        )),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 40,
+                            ),
                             Text(
-                             // snapshot.data!.name,
-                             "deneme",
+                              _locationViewModel.weather.name,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 32,
@@ -51,8 +162,7 @@ class WeatherPage extends StatelessWidget {
                               height: 8,
                             ),
                             Text(
-                            //  snapshot.data!.weather[0]['main'].toString(),
-                            "deneme2",
+                              _locationViewModel.weather.weather[0].description,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 22,
@@ -73,12 +183,12 @@ class WeatherPage extends StatelessWidget {
                             Container(
                               height: 250,
                               width: 250,
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                   image: DecorationImage(
-                                image: AssetImage(
-                                  'assets/cloudy.png',
-                                ),
-                              )),
+                                      image: NetworkImage(
+                                        "https://openweathermap.org/img/wn/${_locationViewModel.weather.weather[0].icon}@2x.png",
+                                      ),
+                                      fit: BoxFit.cover)),
                             ),
                             const SizedBox(
                               height: 20,
@@ -99,8 +209,9 @@ class WeatherPage extends StatelessWidget {
                                       height: 10,
                                     ),
                                     Text(
-                                     // '${((snapshot.data!.main['temp'] - 32 * 5) / 9).toStringAsFixed(2)}',
-                                     "15",
+                                      // '${((snapshot.data!.main['temp'] - 32 * 5) / 9).toStringAsFixed(2)}',
+                                      _locationViewModel.weather.main.temp
+                                          .toString(),
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 21,
@@ -125,8 +236,7 @@ class WeatherPage extends StatelessWidget {
                                       height: 10,
                                     ),
                                     Text(
-                                      //'${snapshot.data!.wind['speed']} km/h',
-                                      "20 km/h",
+                                      "${_locationViewModel.weather.wind.speed} km/h",
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 21,
@@ -151,8 +261,8 @@ class WeatherPage extends StatelessWidget {
                                       height: 10,
                                     ),
                                     Text(
-                                      "%24",
-                                     // '${snapshot.data!.main['humidity']}%',
+                                      "%${_locationViewModel.weather.main.humidity.toString()}",
+                                      // '${snapshot.data!.main['humidity']}%',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 21,
@@ -163,27 +273,18 @@ class WeatherPage extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            ElevatedButton(
-                              onPressed: () {},
-                              child: const Text('Haftalık Hava Durumunu Gör'),
-                              style: ElevatedButton.styleFrom(
-                                  primary: Colors.deepPurpleAccent[100],
-                                  minimumSize: Size(
-                                    MediaQuery.of(context).size.width / 1.1,
-                                    50,
-                                  )),
-                            )
                           ],
                         ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+                        const SizedBox(
+                          height: 40,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            : Center(
+                child: CircularProgressIndicator(),
+              ));
   }
 }

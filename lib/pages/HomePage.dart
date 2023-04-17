@@ -1,6 +1,8 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:weather_app/view_models/location_viewmodel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,8 +16,12 @@ class _HomePageState extends State<HomePage> {
   String text = "";
   bool isListening = false;
   TextEditingController _textEditingController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    LocationViewModel _locationViewModel =
+        Provider.of<LocationViewModel>(context, listen: false);
+    _locationViewModel.getCurrentLocation();
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -32,7 +38,7 @@ class _HomePageState extends State<HomePage> {
                 hintStyle: const TextStyle(color: Colors.grey),
                 suffixIcon: IconButton(
                     onPressed: () {
-                      konusma(context);
+                      Navigator.pushNamed(context, "/weatherPage");
                     },
                     icon: const Icon(Icons.mic))),
           ),
