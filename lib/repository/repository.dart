@@ -10,6 +10,7 @@ class Repository {
     Location location = Location();
 
     //Location için servis ayakta mı?
+    // ignore: no_leading_underscores_for_local_identifiers
     bool _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
       _serviceEnabled = await location.requestService();
@@ -19,6 +20,7 @@ class Repository {
     }
 
     //konum izni kontrolü
+    // ignore: no_leading_underscores_for_local_identifiers
     PermissionStatus _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await location.requestPermission();
@@ -29,6 +31,7 @@ class Repository {
     }
 
     //izinler tamam ise
+    // ignore: no_leading_underscores_for_local_identifiers
     LocationData _locationData = await location.getLocation();
     double latitude = _locationData.latitude!;
     double longitude = _locationData.longitude!;

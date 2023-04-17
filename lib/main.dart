@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/locator.dart';
-import 'package:weather_app/pages/HomePage.dart';
 import 'package:weather_app/pages/WeatherPage.dart';
 import 'package:weather_app/route_generator.dart';
 
@@ -23,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Weather App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.grey,
       ),
       debugShowCheckedModeBanner: false,
       home: const MyHomePage(),
@@ -42,6 +41,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
+    // ignore: no_leading_underscores_for_local_identifiers
     LocationViewModel _locationViewModel =
         Provider.of<LocationViewModel>(context, listen: false);
     _locationViewModel.sayi == 0

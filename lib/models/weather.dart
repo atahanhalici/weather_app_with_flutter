@@ -2,7 +2,6 @@
 //
 //     final weather = weatherFromMap(jsonString);
 
-import 'package:meta/meta.dart';
 import 'dart:convert';
 
 Weather weatherFromMap(String str) => Weather.fromMap(json.decode(str));

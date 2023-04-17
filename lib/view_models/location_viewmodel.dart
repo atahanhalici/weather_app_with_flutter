@@ -11,6 +11,8 @@ class LocationViewModel with ChangeNotifier {
   final Repository _repository = locator<Repository>();
   ViewState _state = ViewState.geliyor;
   ViewState get state => _state;
+  bool isListening = false;
+  bool location = true;
   Weather weather = Weather(
       coord: Coord(lon: 0, lat: 0),
       weather: [
@@ -44,6 +46,7 @@ class LocationViewModel with ChangeNotifier {
   void getCurrentLocation() async {
     await Future.delayed(const Duration(milliseconds: 100));
     state = ViewState.geliyor;
+    location = true;
     try {
       LocationHelper locationHelper = await _repository.getCurrentLocation();
       weather = await _repository.getWeatherKonum(
@@ -51,7 +54,7 @@ class LocationViewModel with ChangeNotifier {
       state = ViewState.geldi;
       sayi = 1;
       String text =
-          "${weather.name} Şehrinde Hava Bugün ${weather.main.temp.toString()} Derece ve ${weather.weather[0].description}";
+          "${weather.name} Şehrinde Hava Bugün ${weather.main.temp.toInt()} Derece ve ${weather.weather[0].description}";
       tts.speak(text);
     } catch (e) {
       state = ViewState.hata;
@@ -61,14 +64,18 @@ class LocationViewModel with ChangeNotifier {
   void getWeather(String sehir) async {
     await Future.delayed(const Duration(milliseconds: 100));
     state = ViewState.geliyor;
+    location = false;
     try {
       weather = await _repository.getWeather(sehir);
       state = ViewState.geldi;
       sayi = 1;
       String text =
-          "${weather.name} Şehrinde Hava Bugün ${weather.main.temp.toString()} Derece ve ${weather.weather[0].description}";
+          "${weather.name} Şehrinde Hava Şuan ${weather.main.temp.toInt()} Derece ve ${weather.weather[0].description}";
       tts.speak(text);
     } catch (e) {
+      String text =
+          "$sehir şehri için veri getirilemedi. Lütfen tekrar deneyiniz!";
+      tts.speak(text);
       state = ViewState.hata;
     }
   }

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:weather_app/models/weather.dart';
 
@@ -18,11 +16,11 @@ class ApiService {
     'mist'
   ];
   List skyTypesTR = [
-    'Güneşli',
+    'Açık',
     'Az Bulutlu',
     'Çok Bulutlu(Kapalı)',
     'Alçak Bulutlu',
-    'Yer Yer Açık Bulutlu',
+    'Parçalı Bulutlu',
     'Sağanak Yağmurlu',
     'Yağmurlu',
     'Gök Gürültülü Fırtına',
@@ -42,6 +40,7 @@ class ApiService {
         }
       }
       return havaDurumu;
+      // ignore: empty_catches
     } catch (e) {}
   }
 
@@ -59,6 +58,7 @@ class ApiService {
       }
 
       return havaDurumu;
+      // ignore: empty_catches
     } catch (e) {}
   }
 }

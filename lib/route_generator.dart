@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:weather_app/pages/HomePage.dart';
 import 'package:weather_app/pages/WeatherPage.dart';
 
 class RouteGenerator {
@@ -13,14 +12,14 @@ class RouteGenerator {
     }
   }
 
+  // ignore: body_might_complete_normally_nullable
   static Route<dynamic>? rotaOlustur(RouteSettings settings) {
     switch (settings.name) {
       case '/':
-        return _gidilecekrota(const HomePage());
+        return _gidilecekrota(const WeatherPage());
       case '/weatherPage':
         return _gidilecekrota(const WeatherPage());
       default:
-        return _gidilecekrota(const HomePage());
     }
   }
 }
