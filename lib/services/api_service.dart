@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:weather_app/models/weather.dart';
 
 class ApiService {
-  String key = "4174ae1e94d71d38af70e2400413846d";
+  String key = "your key";
   List skyTypes = [
     'clear sky',
     'few clouds',
